@@ -1,5 +1,5 @@
 CC=gcc
-PROGRAM=tests.exe
+PROGRAM = tests.exe
 SRCS = testsmain.c
 
 $(PROGRAM) : $(SRCS)
