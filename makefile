@@ -1,5 +1,5 @@
 CC=gcc
-PROGRAM=interpreter.exe
+PROGRAM = bin/messager.exe
 SRCS = src/main.c
 
 $(PROGRAM) : $(SRCS)
