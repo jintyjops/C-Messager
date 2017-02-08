@@ -4,7 +4,7 @@
 #define EXIT_FAIL 1
 
 int main(int argc, char** argv){
-    // DO THINGS!!!
+    // DO THINGS!
 
     return EXIT_SUCCESS;
 }
