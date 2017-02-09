@@ -29,7 +29,8 @@ int fio_tests(char* errormsg){
         result = 0;
     }
     if(strcmp(str, TESTSTR) != 0){
-        strcpy(errormsg, "Data read from file not the same as data written to file.");
+        strcpy(errormsg, "Data read from file not the same as data"
+        "written to file.");
         result = 0;
     }
     if(fio_delete(TESTFILE) == 0){
