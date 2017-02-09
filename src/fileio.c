@@ -12,13 +12,13 @@ Created 9/2/17 */
 #include "headers/fileio.h"
 #include "headers/definitions.h"
 
-int fill_buffer(FILE* fp, char** buffer, int buffer_size);
+static int fill_buffer(FILE* fp, char** buffer, int buffer_size);
 
 /* Reads entire file into memory, data is data read from a file, buffer is the
 file buffer to void to many calls to realloc.
 Returns 1 if file read ok and 0 if there was an error.
 Assumes file already exists.*/
-int fio_get(char* filename, char** data, int buffer_size){
+int fio_read(char* filename, char** data, int buffer_size){
     char* buffer;
     int str_len, buff_return, i;
     FILE* fp;
@@ -48,7 +48,7 @@ int fio_get(char* filename, char** data, int buffer_size){
 
 /* Files a buffer from the file an returns the amount filled.
 Returns 0 on EOF or error. */
-int fill_buffer(FILE* fp, char** buffer, int buffer_size){
+static int fill_buffer(FILE* fp, char** buffer, int buffer_size){
     int len = 0;
     char chr;
 
@@ -68,7 +68,22 @@ int fio_is_file(char* file){
     return FALSE;
 }
 
-/* */
+/* Creates a file, returns TRUE on success, FALSE on failure.*/
 int fio_create(char* filename){
-    return 0;
+    if(fopen(filename, "w") != NULL){
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* Write string to file, returns TRUE on success, FALSE on failure. */
+int fio_write(char* filename, char* data){
+    FILE* fp = fopen(filename, "w");
+    if(fp == NULL){
+        return FALSE;
+    }
+
+    fprintf(fp, data);
+
+    return TRUE;
 }
