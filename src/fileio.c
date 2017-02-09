@@ -16,7 +16,7 @@ static int fill_buffer(FILE* fp, char** buffer, int buffer_size);
 
 /* Reads entire file into memory, data is data read from a file, buffer is the
 file buffer to void to many calls to realloc.
-Returns 1 if file read ok and 0 if there was an error.
+Returns TRUE if file read ok and FALSE if there was an error.
 Assumes file already exists.*/
 int fio_read(char* filename, char** data, int buffer_size){
     char* buffer;
