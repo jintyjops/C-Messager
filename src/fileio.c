@@ -70,7 +70,17 @@ int fio_is_file(char* file){
 
 /* Creates a file, returns TRUE on success, FALSE on failure.*/
 int fio_create(char* filename){
-    if(fopen(filename, "w") != NULL){
+    FILE* fp;
+    if((fp = fopen(filename, "w")) != NULL){
+        fclose(fp);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/* Deletes a file, returns TRUE on success, FALSE on failure. */
+int fio_delete(char* filename){
+    if(remove(filename) == 0){
         return TRUE;
     }
     return FALSE;

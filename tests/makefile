@@ -1,6 +1,7 @@
 CC=gcc
 PROGRAM = tests.exe
-SRCS = testsmain.c
+# Source files go here.
+SRCS = testsmain.c fileiotests.c ../src/fileio.c
 
 $(PROGRAM) : $(SRCS)
 	$(CC) $(SRCS) -o $(PROGRAM)
