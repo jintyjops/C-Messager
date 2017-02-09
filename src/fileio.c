@@ -29,23 +29,30 @@ int fio_get(char* filename, char** data, int buffer_size){
 
     fp = fopen(filename, "r");
 
+    if(fp == NULL){
+        return 0;
+    }
+
     while((buff_return = fill_buffer(fp, &buffer, buffer_size)) != 0){
         str_len += buff_return;
         *data = realloc(*data, str_len * sizeof(char));
+        // Copy data from buffer to data.
         for(i = str_len - buff_return; i < str_len; i++){
             (*data)[i] = buffer[i - (str_len - buff_return)];
         }
     }
 
+    (*data)[str_len - 1] = '\0';
     return 1;
 }
 
-/* Files a buffer from the file an returns the amount filled. */
+/* Files a buffer from the file an returns the amount filled.
+Returns 0 on EOF or error. */
 int fill_buffer(FILE* fp, char** buffer, int buffer_size){
     int len = 0;
     char chr;
 
-    while(len + 1 != buffer_size && (chr = fgetc(fp)) != '\0'){
+    while(len + 1 != buffer_size && (chr = fgetc(fp)) != EOF){
         ++len;
         (*buffer)[len - 1] = chr;
     }
@@ -53,7 +60,7 @@ int fill_buffer(FILE* fp, char** buffer, int buffer_size){
     return len;
 }
 
-/* Returns 1 if file exists, 0 if not */
+/* Returns TRUE if file exists, FALSE if not */
 int fio_is_file(char* file){
     if(access(file, F_OK) != -1){
         return TRUE;
