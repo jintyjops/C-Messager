@@ -19,5 +19,5 @@ int main(){
 void iotests(char* errormsg){
     if(fio_tests(errormsg) == 0){
         printf("%s\n", errormsg);
-    }else{printf("File IO tests success.");}
+    }else{printf("File IO tests success.\n");}
 }

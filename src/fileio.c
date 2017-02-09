@@ -12,7 +12,8 @@ Created 9/2/17 */
 #include "headers/fileio.h"
 #include "headers/definitions.h"
 
-static int fill_buffer(FILE* fp, char** buffer, int buffer_size);
+static int fill_buffer(FILE* fp, char* buffer, int buffer_size);
+static void copy_buffer(char* dest, char* src, int size);
 
 /* Reads entire file into memory, data is data read from a file, buffer is the
 file buffer to void to many calls to realloc.
@@ -20,11 +21,11 @@ Returns TRUE if file read ok and FALSE if there was an error.
 Assumes file already exists.*/
 int fio_read(char* filename, char** data, int buffer_size){
     char* buffer;
-    int str_len, buff_return, i;
+    int strindex, buff_return;
     FILE* fp;
 
-    str_len = 1;
-    *data = malloc(str_len * sizeof(char));
+    strindex = 0;
+    *data = malloc(sizeof(char));
     buffer = malloc(buffer_size * sizeof(char));
 
     fp = fopen(filename, "r");
@@ -33,31 +34,40 @@ int fio_read(char* filename, char** data, int buffer_size){
         return 0;
     }
 
-    while((buff_return = fill_buffer(fp, &buffer, buffer_size)) != 0){
-        str_len += buff_return;
-        *data = realloc(*data, str_len * sizeof(char));
-        // Copy data from buffer to data.
-        for(i = str_len - buff_return; i < str_len; i++){
-            (*data)[i] = buffer[i - (str_len - buff_return)];
-        }
+    while((buff_return = fill_buffer(fp, buffer, buffer_size)) != EOF){
+        *data = realloc(*data, (strindex + buff_return - 1) * sizeof(char));
+        // Copy characters from buffer to data.
+        copy_buffer(&(*data)[strindex], buffer, buff_return);
+        strindex += buff_return - 1;
     }
 
-    (*data)[str_len - 1] = '\0';
+    (*data)[strindex] = '\0';
+    fclose(fp);
     return 1;
 }
 
+static void copy_buffer(char* dest, char* src, int size){
+    int i;
+    for(i = 0; i < size; i++){
+        dest[i] = src[i];
+    }
+}
+
 /* Files a buffer from the file an returns the amount filled.
-Returns 0 on EOF or error. */
-static int fill_buffer(FILE* fp, char** buffer, int buffer_size){
-    int len = 0;
+Returns EOF on if no characters read or error. */
+static int fill_buffer(FILE* fp, char* buffer, int buffer_size){
+    int index = 0;
     char chr;
 
-    while(len + 1 != buffer_size && (chr = fgetc(fp)) != EOF){
-        ++len;
-        (*buffer)[len - 1] = chr;
+    while(index < buffer_size && (chr = fgetc(fp)) != EOF){
+        buffer[index] = chr;
+        ++index;
     }
 
-    return len;
+    if(index == 0){
+        return EOF;
+    }
+    return index + 1;
 }
 
 /* Returns TRUE if file exists, FALSE if not */
@@ -94,6 +104,7 @@ int fio_write(char* filename, char* data){
     }
 
     fprintf(fp, data);
+    fclose(fp);
 
     return TRUE;
 }

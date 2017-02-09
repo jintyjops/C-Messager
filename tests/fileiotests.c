@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 
 #include "headers/fileiotests.h"
 
@@ -16,6 +17,10 @@ int fio_tests(char* errormsg){
     }
     if(fio_write(TESTFILE, TESTSTR) == 0){
         strcpy(errormsg, "Could not write to file.");
+        return 0;
+    }
+    if(fio_is_file(TESTFILE) == 0){
+        strcpy(errormsg, "Could not test for file validity.");
         return 0;
     }
     if(fio_read(TESTFILE, &str, 8) == 0){
