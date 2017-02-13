@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "headers/fileiotests.h"
+#include "headers/useriotests.h"
 
 void iotests(char* errormsg);
 
@@ -20,4 +21,8 @@ void iotests(char* errormsg){
     if(fio_tests(errormsg) == 0){
         printf("%s\n", errormsg);
     }else{printf("File IO tests success.\n");}
+
+    if(uio_tests(errormsg) == 0){
+        printf("%s\n", errormsg);
+    }else{printf("User IO tests success\n");}
 }
