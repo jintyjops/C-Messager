@@ -6,7 +6,7 @@
 #include "headers/mainloop.h"
 
 int main(int argc, char** argv){
-    start_user_input();
+    start_program();
 
     return EXIT_SUCCESS;
 }
