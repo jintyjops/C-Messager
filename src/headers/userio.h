@@ -1,4 +1,5 @@
 #ifndef USERIO
+#define USERIO
 
 #include <pthread.h>
 
@@ -6,7 +7,7 @@
 pthread_mutex_t display_lock;
 
 int uio_init();
-int uio_read(char** data, int max_len);
+int uio_read(char** data, char* prompt, int max_len);
 void uio_display(char* data);
 void uio_display_nn(char* data);
 

@@ -4,6 +4,7 @@ Prefix for this module is uio*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #include "headers/userio.h"
 #include "headers/fileio.h"
@@ -25,10 +26,27 @@ int uio_init(){
 Sets data to  user input and returns TRUE if successful and FALSE on failure.
 Max length is the maximum length the user input can be before the function
 returns, -1 for unlimited length. */
-int uio_read(char** data, int max_len){
-    // XXX use max_len.
-    // Why does this produce a compiler warning?
-    return fio_read_file(stdin, &data, UIO_BUFFER_SIZE);
+int uio_read(char** data, char* prompt, int max_len){
+    int index = 0;
+    char chr;
+    *data = malloc(sizeof(char));
+
+    if(max_len == -1){
+        max_len = INT_MAX;
+    }
+
+    uio_display_nn(prompt);
+
+    while((chr = fgetc(stdin)) != EOF && chr != '\n' && index + 1 < max_len){
+        // XXX: implement a buffer system for this.
+        // Plus two to give space for null at the end.
+        *data = realloc(*data, (index + 2) * sizeof(char));
+        (*data)[index] = chr;
+        index++;
+    }
+    (*data)[index] = '\0';
+
+    return TRUE;
 }
 
 /* Displays some string to the user with a newline automatically added,
