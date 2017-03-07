@@ -15,22 +15,97 @@
 struct program_state state = {
     TRUE,
     FALSE,
+    COMMAND_STATE
 };
 
-// User commands.
-const char* USER_COMMANDS[NUM_USER_COMMANDS] = {
+char* INPUT_STATE_NAMES[] = {
+    "Command",
+    "Message",
+    "Settings",
+    "Join"
+};
+
+// --------- Command state commands ------------------
+const char* COMMAND_STATE_COMMANDS[NUM_COMMAND_STATE_COMMANDS] = {
     "quit",
     "join",
     "help",
-    "h"
+    "h",
+    "settings",
+    "create",
 };
 
-// Array of user commands that correspond to indexes of user command above.
-Commandptr_t USER_COMMAND_FUNCS[NUM_USER_COMMANDS] = {
+Commandptr_t COMMAND_STATE_FUNCS[NUM_COMMAND_STATE_COMMANDS] = {
     quit_command,
     join_command,
     help_command,
-    help_command
+    help_command,
+    settings_command,
+    create_command
+};
+
+// --------- Message state commands ------------------
+const char* MESSAGE_STATE_COMMANDS[NUM_MESSAGE_STATE_COMMANDS] = {
+    ":help",
+    ":return"
+};
+
+Commandptr_t MESSAGE_STATE_FUNCS[NUM_MESSAGE_STATE_COMMANDS] = {
+    help_command,
+    return_command
+};
+
+// --------- Settings state commands ------------------
+const char* SETTINGS_STATE_COMMANDS[NUM_SETTINGS_STATE_COMMANDS] = {
+    "save",
+    "reset",
+    "discard",
+    "help",
+    "return"
+};
+
+Commandptr_t SETTINGS_STATE_FUNCS[NUM_SETTINGS_STATE_COMMANDS] = {
+    save_settings_command,
+    reset_settings_command,
+    discard_settings_command,
+    help_command,
+    return_command
+};
+
+// --------- Join network state commands ------------------
+const char* JOIN_NETWORK_STATE_COMMANDS[NUM_JOIN_NETWORK_STATE_COMMANDS] = {
+    "return"
+};
+
+Commandptr_t JOIN_NETWORK_STATE_FUNCS[NUM_JOIN_NETWORK_STATE_COMMANDS] = {
+    return_command
+};
+
+// --------- Input password state commands ------------------
+const char* INPUT_PASSWORD_STATE_COMMANDS[NUM_INPUT_PASSWORD_STATE_COMMANDS] = {
+    "return"
+};
+
+Commandptr_t INPUT_PASSWORD_STATE_FUNCS[NUM_INPUT_PASSWORD_STATE_COMMANDS] = {
+    return_command
+};
+
+// --------- Create network state commands ------------------
+const char* CREATE_NETWORK_STATE_COMMANDS[NUM_CREATE_NETWORK_STATE_COMMANDS] = {
+    "return"
+};
+
+Commandptr_t CREATE_NETWORK_STATE_FUNCS[NUM_CREATE_NETWORK_STATE_COMMANDS] = {
+    return_command
+};
+
+// --------- Command state commands ------------------
+const char* SET_PASSWORD_STATE_COMMANDS[NUM_SET_PASSWORD_STATE_COMMANDS] = {
+    "return"
+};
+
+Commandptr_t SET_PASSWORD_STATE_FUNCS[NUM_SET_PASSWORD_STATE_COMMANDS] = {
+    return_command
 };
 
 // Don't read help and welcome messages from a file in case
@@ -70,6 +145,7 @@ static int user_io_loop(){
 
     while(state.program_running){
         free_args(args);
+        uio_display_nn(INPUT_STATE_NAMES[state.input_state]);
         uio_read(user_input, COMMAND_INPUT_PROMPT, MAX_USER_INPUT);
         strip_whitespace(*user_input);
         num_args = separate_args(args, *user_input);
@@ -85,6 +161,63 @@ static void parse_user_input(char** args, int num_args){
     int i;
     char* command;
 
+    char** state_commands;
+    Commandptr_t* state_funcs;
+    int num_state_commands;
+    Commandptr_t default_command = NULL;
+
+    // Work out which state the program is in.
+    switch(state.input_state){
+
+        case COMMAND_STATE:
+            state_commands = (char**) COMMAND_STATE_COMMANDS;
+            state_funcs = COMMAND_STATE_FUNCS;
+            num_state_commands = NUM_COMMAND_STATE_COMMANDS;
+            break;
+
+        case MESSAGE_STATE:
+            state_commands = (char**) MESSAGE_STATE_COMMANDS;
+            state_funcs = MESSAGE_STATE_FUNCS;
+            num_state_commands = NUM_MESSAGE_STATE_COMMANDS;
+            default_command = message_command;
+            break;
+
+        case SETTINGS_STATE:
+            state_commands = (char**) SETTINGS_STATE_COMMANDS;
+            state_funcs = SETTINGS_STATE_FUNCS;
+            num_state_commands = NUM_SETTINGS_STATE_COMMANDS;
+            default_command = set_setting_command;
+            break;
+
+        case JOIN_NETWORK_STATE:
+            state_commands = (char**) JOIN_NETWORK_STATE_COMMANDS;
+            state_funcs = JOIN_NETWORK_STATE_FUNCS;
+            num_state_commands = NUM_JOIN_NETWORK_STATE_COMMANDS;
+            default_command = join_network_command;
+            break;
+
+        case INPUT_PASSWORD_STATE:
+            state_commands = (char**) INPUT_PASSWORD_STATE_COMMANDS;
+            state_funcs = INPUT_PASSWORD_STATE_FUNCS;
+            num_state_commands = NUM_INPUT_PASSWORD_STATE_COMMANDS;
+            default_command = input_password_command;
+            break;
+
+        case CREATE_NETWORK_STATE:
+            state_commands = (char**) CREATE_NETWORK_STATE_COMMANDS;
+            state_funcs = CREATE_NETWORK_STATE_FUNCS;
+            num_state_commands = NUM_CREATE_NETWORK_STATE_COMMANDS;
+            default_command = create_network_command;
+            break;
+
+        case SET_PASSWORD_STATE:
+            state_commands = (char**) SET_PASSWORD_STATE_COMMANDS;
+            state_funcs = SET_PASSWORD_STATE_FUNCS;
+            num_state_commands = NUM_SET_PASSWORD_STATE_COMMANDS;
+            default_command = set_password_command;
+            break;
+    }
+
     if(num_args == 0){
         // Don't display anyting.
         return;
@@ -92,11 +225,17 @@ static void parse_user_input(char** args, int num_args){
 
     command = args[0];
 
-    for(i = 0; i < NUM_USER_COMMANDS; i++){
-        if(strcmp(command, USER_COMMANDS[i]) == 0){
-            USER_COMMAND_FUNCS[i](args);
+    // Run functions.
+    for(i = 0; i < num_state_commands; i++){
+        if(strcmp(command, state_commands[i]) == 0){
+            state_funcs[i](args);
             return;
         }
+    }
+
+    // Run default if there is one.
+    if(default_command != NULL){
+        default_command(args);
     }
 
     // If function gets this far then no command has been run.
@@ -192,6 +331,8 @@ static void do_sleep(unsigned seconds){
     #endif
 }
 
+// -------------- Specific program commands --------------
+
 /* Sets state of the program to not running */
 void quit_command(char* args[]){
     state.program_running = FALSE;
@@ -200,10 +341,71 @@ void quit_command(char* args[]){
 
 /* Joins a messaging network. */
 void join_command(char* args[]){
+    state.input_state = JOIN_NETWORK_STATE;
+}
 
+/* Creates a messaging network. */
+void create_command(char* args[]){
+    state.input_state = CREATE_NETWORK_STATE;
 }
 
 /* Prints the help command */
 void help_command(char* args[]){
     uio_display(HELP_MESSAGE);
+}
+
+/* Opens settings menu. */
+void settings_command(char* argsp[]){
+    // XXX: display settings here.
+    state.input_state = SETTINGS_STATE;
+}
+
+/* Returns to command state. */
+void return_command(char* args[]){
+    state.input_state = COMMAND_STATE;
+}
+
+/* Saves settings. */
+void save_settings_command(char* args[]){
+
+}
+
+/* Resets the settings to defaults. */
+void reset_settings_command(char* args[]){
+
+}
+
+/* Discards settings set in the since switching to settings state. */
+void discard_settings_command(char* args[]){
+
+}
+
+/* Sets the settings given by args. */
+void set_setting_command(char* args[]){
+
+}
+
+/* Join a network. */
+void join_network_command(char* args[]){
+
+}
+
+/* Sends message to currently joined network. */
+void message_command(char* args[]){
+
+}
+
+/* Takes a password in args and tries to log into network. */
+void input_password_command(char* args[]){
+
+}
+
+/* Takes name given in args and sets state to set_password_state. */
+void create_network_command(char* args[]){
+
+}
+
+/* Sets a password for a network and then creates it. */
+void set_password_command(char* args[]){
+
 }
