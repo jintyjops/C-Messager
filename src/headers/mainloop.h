@@ -15,14 +15,15 @@ struct program_state {
 typedef void (*Commandptr_t)(char* args[]);
 
 #define SECONDS_TO_SLEEP_NETWORK 0.1
-#define NUM_USER_COMMANDS 2
+#define NUM_USER_COMMANDS 4
 #define MAX_USER_INPUT -1
 #define MAX_ARGS 32
 #define COMMAND_INPUT_PROMPT "->"
 
 // User messages.
-#define NO_COMMAND_SPECIFIED_MESSAGE "That is not a valid command!"
+#define INVALID_COMMAND_MESSAGE "That is not a valid command!"
 
+void start_program();
 void start_user_input();
 void start_network();
 static int user_io_loop();
@@ -37,5 +38,6 @@ static void do_sleep(unsigned seconds);
 // Commands.
 void quit_command(char* args[]);
 void join_command(char* args[]);
+void help_command(char* args[]);
 
 #endif

@@ -20,17 +20,40 @@ struct program_state state = {
 // User commands.
 const char* USER_COMMANDS[NUM_USER_COMMANDS] = {
     "quit",
-    "join"
+    "join",
+    "help",
+    "h"
 };
 
 // Array of user commands that correspond to indexes of user command above.
 Commandptr_t USER_COMMAND_FUNCS[NUM_USER_COMMANDS] = {
     quit_command,
-    join_command
+    join_command,
+    help_command,
+    help_command
 };
 
-void start_user_input(){
+// Don't read help and welcome messages from a file in case
+// files are not accessible.
+//XXX: Add more help later on.
+char* HELP_MESSAGE =
+    "Type quit to quit.";
+
+char* WELCOME_MESSAGE =
+    "Welcome to C-Messager.\n"
+    "Type help or h to get help.";
+
+/* Starts user input thread and worker threads (if any). */
+void start_program(){
     uio_init();
+    uio_display(WELCOME_MESSAGE);
+
+    // Start worker threads (if any here).
+
+    start_user_input();
+}
+
+void start_user_input(){
     user_io_loop();
 }
 
@@ -77,7 +100,7 @@ static void parse_user_input(char** args, int num_args){
     }
 
     // If function gets this far then no command has been run.
-    uio_display(NO_COMMAND_SPECIFIED_MESSAGE);
+    uio_display(INVALID_COMMAND_MESSAGE);
 }
 
 /* Separates args out and places them in **args.
@@ -175,6 +198,12 @@ void quit_command(char* args[]){
     state.network_running = FALSE;
 }
 
+/* Joins a messaging network. */
 void join_command(char* args[]){
 
+}
+
+/* Prints the help command */
+void help_command(char* args[]){
+    uio_display(HELP_MESSAGE);
 }
