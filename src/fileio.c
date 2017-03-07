@@ -15,24 +15,35 @@ Created 9/2/17 */
 static int fill_buffer(FILE* fp, char* buffer, int buffer_size);
 static void copy_buffer(char* dest, char* src, int size);
 
-/* Reads entire file into memory, data is data read from a file, buffer is the
-file buffer to void to many calls to realloc.
+/* Reads until pointer hits EOF, data is data read from a file.
 Returns TRUE if file read ok and FALSE if there was an error.
 Assumes file already exists.*/
 int fio_read(char* filename, char** data, int buffer_size){
+    FILE *fp;
+    fp = fopen(filename, "r");
+    if(fp == NULL){
+        return FALSE;
+    }
+
+    if(!fio_read_file(fp, data, buffer_size)){
+        return FALSE;
+    }
+    return TRUE;
+}
+
+/* Reads until pointer hits EOF, data is set to information read from file.
+Returns */
+int fio_read_file(FILE* fp, char** data, int buffer_size){
     char* buffer;
     int strindex, buff_return;
-    FILE* fp;
+
+    if(fp == NULL){
+        return FALSE;
+    }
 
     strindex = 0;
     *data = malloc(sizeof(char));
     buffer = malloc(buffer_size * sizeof(char));
-
-    fp = fopen(filename, "r");
-
-    if(fp == NULL){
-        return 0;
-    }
 
     while((buff_return = fill_buffer(fp, buffer, buffer_size)) != EOF){
         *data = realloc(*data, (strindex + buff_return - 1) * sizeof(char));
@@ -43,7 +54,7 @@ int fio_read(char* filename, char** data, int buffer_size){
 
     (*data)[strindex] = '\0';
     fclose(fp);
-    return 1;
+    return TRUE;
 }
 
 static void copy_buffer(char* dest, char* src, int size){
