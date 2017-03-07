@@ -22,7 +22,10 @@ char* INPUT_STATE_NAMES[] = {
     "Command",
     "Message",
     "Settings",
-    "Join"
+    "Join Network"
+    "Input Password"
+    "Create Network"
+    "Set Password"
 };
 
 // --------- Command state commands ------------------
@@ -110,9 +113,41 @@ Commandptr_t SET_PASSWORD_STATE_FUNCS[NUM_SET_PASSWORD_STATE_COMMANDS] = {
 
 // Don't read help and welcome messages from a file in case
 // files are not accessible.
-//XXX: Add more help later on.
+//XXX: Keep updating this as more commands are added.
 char* HELP_MESSAGE =
-    "Type quit to quit.";
+    "\n"
+    "Current state is given before prompt (e.g. Command->)\n"
+    "return: can be used in any state but command to return to "
+    "command state\n\n"
+    "Command state commands:\n"
+    "\tsettings: switches state to settings.\n"
+    "\tcreate: switches to create network state allowing creation of networks\n"
+    "\tjoin: switches to join network state to allow joining of networks\n"
+    "\tquit: quits program when in command state.\n"
+    "\n"
+    "Settings state commands:\n"
+    "\t[setting] = [val]: sets setting setting to val\n"
+    "\tsave: saves the current settings\n"
+    "\treset: resets settings to default\n"
+    "\tdiscard: discards current settings\n"
+    "\n"
+    "Join network state commands:\n"
+    "\t[network name]: attempts to join the specified network\n"
+    "\n"
+    "Messaging state commands:\n"
+    "\t[message]: send message to network\n"
+    "\t:help: Displays help while in messaging state\n"
+    "\t:return: leaves network\n"
+    "\n"
+    "Input password state commands:\n"
+    "\t[password]: input the password\n"
+    "\n"
+    "Create network state commands:\n"
+    "\t[network name]: Attempts to create the specified network\n"
+    "\n"
+    "Set password state:\n"
+    "\t[password]: Sets the password before creating network.\n"
+    "\n";
 
 char* WELCOME_MESSAGE =
     "Welcome to C-Messager.\n"
