@@ -22,9 +22,9 @@ char* INPUT_STATE_NAMES[] = {
     "Command",
     "Message",
     "Settings",
-    "Join Network"
-    "Input Password"
-    "Create Network"
+    "Join Network",
+    "Input Password",
+    "Create Network",
     "Set Password"
 };
 

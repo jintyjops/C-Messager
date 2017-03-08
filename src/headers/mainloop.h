@@ -28,7 +28,7 @@ typedef void (*Commandptr_t)(char* args[]);
 
 #define SECONDS_TO_SLEEP_NETWORK 0.1
 #define MAX_USER_INPUT -1
-#define MAX_ARGS 32
+#define MAX_ARGS 255
 #define COMMAND_INPUT_PROMPT "->"
 
 // User messages.
